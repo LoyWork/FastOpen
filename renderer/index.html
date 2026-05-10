@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FastOpen</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <div class="search-bar" id="searchBar">
+      <input type="text" id="searchInput" placeholder="搜索..." autofocus>
+      <button id="addBtn" title="添加快捷入口">+</button>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="status-bar">
+      <span id="statusText"></span>
+      <div class="status-actions">
+        <button id="pinBtn" title="固定窗口（不自动隐藏）">📌</button>
+        <span class="shortcut-hint">Ctrl+Shift+K</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="context-menu" id="contextMenu" style="display:none;">
+    <div class="ctx-item" data-action="edit">编辑</div>
+    <div class="ctx-item ctx-danger" data-action="delete">删除</div>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay" style="display:none;">
+    <div class="modal" id="modal">
+      <h3 id="modalTitle">添加快捷入口</h3>
+      <label>名称</label>
+      <input type="text" id="editName" placeholder="显示名称">
+      <label>类型</label>
+      <select id="editType">
+        <option value="url">网址</option>
+        <option value="folder">文件夹</option>
+        <option value="file">文件</option>
+      </select>
+      <label>路径 / 网址</label>
+      <input type="text" id="editPath" placeholder="路径或网址">
+      <label>图标 (Emoji 或图标URL，可选)</label>
+      <input type="text" id="editIcon" placeholder="留空则使用默认图标">
+      <div class="emoji-picker" id="emojiPicker"></div>
+      <div class="modal-btns">
+        <button class="btn-cancel" id="btnCancel">取消</button>
+        <button class="btn-save" id="btnSave">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "name": "fastopen",
+  "version": "1.0.0",
+  "description": "Electron 快捷启动器 - Quick Launch Grid",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win portable",
+    "build:dir": "electron-builder --win dir"
+  },
+  "build": {
+    "appId": "com.fastopen.launcher",
+    "productName": "FastOpen",
+    "win": {
+      "target": ["portable"]
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**",
+      "assets/**",
+      "node_modules/**"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  }
+}

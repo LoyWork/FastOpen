@@ -1,0 +1,9 @@
+{
+  "shortcut": "CommandOrControl+Shift+K",
+  "items": [
+    { "name": "我的文档", "type": "folder", "path": "C:/Users/LOY/Documents" },
+    { "name": "下载目录", "type": "folder", "path": "C:/Users/LOY/Downloads" },
+    { "name": "GitHub", "type": "url", "path": "https://github.com" },
+    { "name": "百度", "type": "url", "path": "https://www.baidu.com" }
+  ]
+}
