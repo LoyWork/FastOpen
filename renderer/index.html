@@ -16,7 +16,7 @@
     <div class="status-bar">
       <span id="statusText"></span>
       <div class="status-actions">
-        <button id="pinBtn" title="固定窗口（不自动隐藏）">📌</button>
+        <button id="settingsBtn" title="设置">⚙️</button>
         <span class="shortcut-hint">Ctrl+Shift+K</span>
       </div>
     </div>
@@ -28,7 +28,7 @@
   </div>
 
   <div class="modal-overlay" id="modalOverlay" style="display:none;">
-    <div class="modal" id="modal">
+    <form class="modal" id="modal">
       <h3 id="modalTitle">添加快捷入口</h3>
       <label>名称</label>
       <input type="text" id="editName" placeholder="显示名称">
@@ -44,10 +44,28 @@
       <input type="text" id="editIcon" placeholder="留空则使用默认图标">
       <div class="emoji-picker" id="emojiPicker"></div>
       <div class="modal-btns">
-        <button class="btn-cancel" id="btnCancel">取消</button>
-        <button class="btn-save" id="btnSave">保存</button>
+        <button type="button" class="btn-cancel" id="btnCancel">取消</button>
+        <button type="submit" class="btn-save" id="btnSave">保存</button>
       </div>
-    </div>
+    </form>
+  </div>
+
+  <div class="modal-overlay" id="settingsOverlay" style="display:none;">
+    <form class="modal settings-modal" id="settingsModal">
+      <h3>设置</h3>
+      <label class="setting-row">
+        <span><strong>开机自动启动</strong><small>登录 Windows 后自动运行 FastOpen</small></span>
+        <input type="checkbox" id="autoLaunchToggle">
+      </label>
+      <label class="setting-row">
+        <span><strong>常驻显示</strong><small>窗口失去焦点后仍保持显示</small></span>
+        <input type="checkbox" id="stayVisibleToggle">
+      </label>
+      <div class="modal-btns">
+        <button type="button" class="btn-cancel" id="settingsCancel">取消</button>
+        <button type="submit" class="btn-save">确认</button>
+      </div>
+    </form>
   </div>
 
   <script src="renderer.js"></script>

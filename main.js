@@ -8,6 +8,11 @@ let config = null;
 let configPath = null;
 let pinned = false;
 
+const defaultSettings = {
+  autoLaunch: false,
+  stayVisible: false,
+};
+
 function initConfigPath() {
   configPath = path.join(app.getPath('userData'), 'config.json');
 }
@@ -20,6 +25,7 @@ function loadConfig() {
     } else {
       config = {
         shortcut: 'CommandOrControl+Shift+K',
+        settings: { ...defaultSettings },
         items: [
           { name: '我的文档', type: 'folder', path: app.getPath('documents') },
           { name: '下载目录', type: 'folder', path: app.getPath('downloads') },
@@ -30,12 +36,22 @@ function loadConfig() {
       saveConfig();
     }
   } catch (e) {
-    config = { items: [] };
+    config = { items: [], settings: { ...defaultSettings } };
   }
+  config.settings = { ...defaultSettings, ...(config.settings || {}) };
+  pinned = config.settings.stayVisible;
 }
 
 function saveConfig() {
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
+}
+
+function applyAutoLaunch(enabled) {
+  const portablePath = process.env.PORTABLE_EXECUTABLE_FILE;
+  app.setLoginItemSettings({
+    openAtLogin: Boolean(enabled),
+    path: portablePath || process.execPath,
+  });
 }
 
 function createWindow() {
@@ -122,6 +138,14 @@ function setupIPC() {
     return { success: true };
   });
 
+  ipcMain.handle('save-settings', (event, settings) => {
+    config.settings = { ...defaultSettings, ...(config.settings || {}), ...settings };
+    pinned = config.settings.stayVisible;
+    applyAutoLaunch(config.settings.autoLaunch);
+    saveConfig();
+    return config.settings;
+  });
+
   ipcMain.handle('set-pinned', (event, value) => {
     pinned = value;
     return pinned;
@@ -180,6 +204,7 @@ if (!gotTheLock) {
 
   app.whenReady().then(() => {
     loadConfig();
+    applyAutoLaunch(config.settings.autoLaunch);
     createWindow();
     setupIPC();
     registerShortcut();

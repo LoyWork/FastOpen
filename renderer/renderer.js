@@ -12,6 +12,13 @@ const editIcon = document.getElementById('editIcon');
 const btnSave = document.getElementById('btnSave');
 const btnCancel = document.getElementById('btnCancel');
 const emojiPicker = document.getElementById('emojiPicker');
+const modal = document.getElementById('modal');
+const settingsBtn = document.getElementById('settingsBtn');
+const settingsOverlay = document.getElementById('settingsOverlay');
+const settingsModal = document.getElementById('settingsModal');
+const settingsCancel = document.getElementById('settingsCancel');
+const autoLaunchToggle = document.getElementById('autoLaunchToggle');
+const stayVisibleToggle = document.getElementById('stayVisibleToggle');
 
 let items = [];
 let config = null;
@@ -177,7 +184,8 @@ modalOverlay.addEventListener('click', (e) => {
   if (e.target === modalOverlay) closeModal();
 });
 
-btnSave.addEventListener('click', () => {
+modal.addEventListener('submit', async (event) => {
+  event.preventDefault();
   const name = editName.value.trim();
   const type = editType.value;
   const path = editPath.value.trim();
@@ -189,19 +197,23 @@ btnSave.addEventListener('click', () => {
   const item = { name, type, path };
   if (icon) item.icon = icon;
 
-  if (editingIndex >= 0) {
+  const wasEditing = editingIndex >= 0;
+  if (wasEditing) {
     items[editingIndex] = item;
   } else {
     items.push(item);
   }
 
   config.items = items;
-  window.electronAPI.saveConfig(config).then(() => {
+  try {
+    await window.electronAPI.saveConfig(config);
     closeModal();
     renderGrid(searchInput.value);
-    statusText.textContent = editingIndex >= 0 ? '已更新' : '已添加';
+    statusText.textContent = wasEditing ? '已更新' : '已添加';
     setTimeout(() => { statusText.textContent = `${items.length} 个入口`; }, 1500);
-  });
+  } catch (error) {
+    statusText.textContent = `保存失败: ${error.message}`;
+  }
 });
 
 addBtn.addEventListener('click', () => openEditModal(-1));
@@ -261,6 +273,8 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     if (modalOverlay.style.display === 'flex') {
       closeModal();
+    } else if (settingsOverlay.style.display === 'flex') {
+      closeSettings();
     } else {
       window.electronAPI.hideWindow();
     }
@@ -272,19 +286,38 @@ window.electronAPI.onWindowShown(() => {
   searchInput.select();
 });
 
-// === Pin Toggle ===
+// === Settings ===
 
-const pinBtn = document.getElementById('pinBtn');
-let isPinned = false;
+settingsBtn.addEventListener('click', () => {
+  autoLaunchToggle.checked = Boolean(config.settings?.autoLaunch);
+  stayVisibleToggle.checked = Boolean(config.settings?.stayVisible);
+  settingsOverlay.style.display = 'flex';
+});
 
-pinBtn.addEventListener('click', () => {
-  isPinned = !isPinned;
-  pinBtn.classList.toggle('active', isPinned);
-  window.electronAPI.setPinned(isPinned);
+function closeSettings() {
+  settingsOverlay.style.display = 'none';
+}
+
+settingsCancel.addEventListener('click', closeSettings);
+settingsOverlay.addEventListener('click', (event) => {
+  if (event.target === settingsOverlay) closeSettings();
+});
+
+settingsModal.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const settings = await window.electronAPI.saveSettings({
+    autoLaunch: autoLaunchToggle.checked,
+    stayVisible: stayVisibleToggle.checked,
+  });
+  config.settings = settings;
+  closeSettings();
+  statusText.textContent = '设置已保存';
+  setTimeout(() => renderGrid(searchInput.value), 1500);
 });
 
 window.electronAPI.getConfig().then((cfg) => {
   config = cfg;
   items = config.items || [];
+  config.settings = config.settings || {};
   renderGrid();
 });

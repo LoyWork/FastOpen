@@ -1,5 +1,9 @@
 {
   "shortcut": "CommandOrControl+Shift+K",
+  "settings": {
+    "autoLaunch": false,
+    "stayVisible": false
+  },
   "items": [
     { "name": "我的文档", "type": "folder", "path": "C:/Users/LOY/Documents" },
     { "name": "下载目录", "type": "folder", "path": "C:/Users/LOY/Downloads" },

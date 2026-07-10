@@ -178,7 +178,7 @@ body {
   -webkit-app-region: no-drag;
 }
 
-#pinBtn {
+#settingsBtn {
   width: 22px;
   height: 22px;
   border: none;
@@ -192,14 +192,9 @@ body {
   padding: 0;
 }
 
-#pinBtn:hover {
+#settingsBtn:hover {
   opacity: 0.8;
   background: rgba(255, 255, 255, 0.08);
-}
-
-#pinBtn.active {
-  opacity: 1;
-  background: rgba(255, 255, 255, 0.12);
 }
 
 /* Add button in search bar */
@@ -275,6 +270,9 @@ body {
   padding: 20px;
   width: 340px;
   backdrop-filter: blur(24px);
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+  -webkit-app-region: no-drag;
 }
 
 .modal h3 {
@@ -388,4 +386,43 @@ body {
 
 .emoji-opt.selected {
   background: var(--accent);
+}
+
+.settings-modal {
+  width: 360px;
+}
+
+.setting-row {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 12px 0;
+  margin: 0 !important;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.setting-row span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.setting-row strong {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.setting-row small {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.setting-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  accent-color: var(--accent);
 }

@@ -12,6 +12,7 @@
     "appId": "com.fastopen.launcher",
     "productName": "FastOpen",
     "win": {
+      "icon": "assets/icon.ico",
       "target": ["portable"]
     },
     "files": [
