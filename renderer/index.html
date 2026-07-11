@@ -16,6 +16,7 @@
     <div class="status-bar">
       <span id="statusText"></span>
       <div class="status-actions">
+        <button id="stayVisibleBtn" type="button" title="常驻显示：关闭" aria-label="切换常驻显示" aria-pressed="false">📌</button>
         <button id="settingsBtn" title="设置">⚙️</button>
         <span class="shortcut-hint">Ctrl+Shift+K</span>
       </div>
@@ -56,10 +57,6 @@
       <label class="setting-row">
         <span><strong>开机自动启动</strong><small>登录 Windows 后自动运行 FastOpen</small></span>
         <input type="checkbox" id="autoLaunchToggle">
-      </label>
-      <label class="setting-row">
-        <span><strong>常驻显示</strong><small>窗口失去焦点后仍保持显示</small></span>
-        <input type="checkbox" id="stayVisibleToggle">
       </label>
       <div class="modal-btns">
         <button type="button" class="btn-cancel" id="settingsCancel">取消</button>

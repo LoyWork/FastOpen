@@ -18,7 +18,7 @@ const settingsOverlay = document.getElementById('settingsOverlay');
 const settingsModal = document.getElementById('settingsModal');
 const settingsCancel = document.getElementById('settingsCancel');
 const autoLaunchToggle = document.getElementById('autoLaunchToggle');
-const stayVisibleToggle = document.getElementById('stayVisibleToggle');
+const stayVisibleBtn = document.getElementById('stayVisibleBtn');
 
 let items = [];
 let config = null;
@@ -290,8 +290,22 @@ window.electronAPI.onWindowShown(() => {
 
 settingsBtn.addEventListener('click', () => {
   autoLaunchToggle.checked = Boolean(config.settings?.autoLaunch);
-  stayVisibleToggle.checked = Boolean(config.settings?.stayVisible);
   settingsOverlay.style.display = 'flex';
+});
+
+function renderStayVisibleButton() {
+  const enabled = Boolean(config.settings?.stayVisible);
+  stayVisibleBtn.classList.toggle('active', enabled);
+  stayVisibleBtn.setAttribute('aria-pressed', String(enabled));
+  stayVisibleBtn.title = `常驻显示：${enabled ? '开启' : '关闭'}`;
+}
+
+stayVisibleBtn.addEventListener('click', async () => {
+  const settings = await window.electronAPI.saveSettings({
+    stayVisible: !Boolean(config.settings?.stayVisible),
+  });
+  config.settings = settings;
+  renderStayVisibleButton();
 });
 
 function closeSettings() {
@@ -307,7 +321,6 @@ settingsModal.addEventListener('submit', async (event) => {
   event.preventDefault();
   const settings = await window.electronAPI.saveSettings({
     autoLaunch: autoLaunchToggle.checked,
-    stayVisible: stayVisibleToggle.checked,
   });
   config.settings = settings;
   closeSettings();
@@ -319,5 +332,6 @@ window.electronAPI.getConfig().then((cfg) => {
   config = cfg;
   items = config.items || [];
   config.settings = config.settings || {};
+  renderStayVisibleButton();
   renderGrid();
 });

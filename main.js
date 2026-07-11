@@ -1,4 +1,4 @@
-const { app, BrowserWindow, globalShortcut, ipcMain, shell, dialog, nativeImage, Tray, Menu } = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain, shell, dialog, nativeImage, Tray, Menu, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -7,6 +7,7 @@ let tray = null;
 let config = null;
 let configPath = null;
 let pinned = false;
+let lastWindowBounds = null;
 
 const defaultSettings = {
   autoLaunch: false,
@@ -40,6 +41,7 @@ function loadConfig() {
   }
   config.settings = { ...defaultSettings, ...(config.settings || {}) };
   pinned = config.settings.stayVisible;
+  lastWindowBounds = config.windowBounds || null;
 }
 
 function saveConfig() {
@@ -55,9 +57,11 @@ function applyAutoLaunch(enabled) {
 }
 
 function createWindow() {
+  const savedBounds = getVisibleWindowBounds(lastWindowBounds);
   mainWindow = new BrowserWindow({
     width: 520,
     height: 440,
+    ...(savedBounds || {}),
     minWidth: 300,
     minHeight: 200,
     frame: false,
@@ -76,6 +80,10 @@ function createWindow() {
 
   mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 
+  if (!savedBounds) mainWindow.center();
+
+  mainWindow.on('hide', rememberWindowBounds);
+
   mainWindow.on('blur', () => {
     if (!pinned) mainWindow.hide();
   });
@@ -88,12 +96,33 @@ function createWindow() {
   });
 }
 
+function getVisibleWindowBounds(bounds) {
+  if (!bounds || !Number.isFinite(bounds.x) || !Number.isFinite(bounds.y)) return null;
+  const width = Number.isFinite(bounds.width) ? bounds.width : 520;
+  const height = Number.isFinite(bounds.height) ? bounds.height : 440;
+  const intersectsDisplay = screen.getAllDisplays().some(({ workArea }) =>
+    bounds.x < workArea.x + workArea.width &&
+    bounds.x + width > workArea.x &&
+    bounds.y < workArea.y + workArea.height &&
+    bounds.y + height > workArea.y
+  );
+  return intersectsDisplay ? { ...bounds, width, height } : null;
+}
+
+function rememberWindowBounds() {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  lastWindowBounds = mainWindow.getBounds();
+  config.windowBounds = lastWindowBounds;
+  saveConfig();
+}
+
 function toggleWindow() {
   if (!mainWindow) return;
   if (mainWindow.isVisible()) {
     mainWindow.hide();
   } else {
-    mainWindow.center();
+    const savedBounds = getVisibleWindowBounds(lastWindowBounds);
+    if (savedBounds) mainWindow.setBounds(savedBounds);
     mainWindow.show();
     mainWindow.focus();
     mainWindow.webContents.send('window-shown');
@@ -195,7 +224,8 @@ if (!gotTheLock) {
   app.on('second-instance', () => {
     if (mainWindow) {
       if (!mainWindow.isVisible()) {
-        mainWindow.center();
+        const savedBounds = getVisibleWindowBounds(lastWindowBounds);
+        if (savedBounds) mainWindow.setBounds(savedBounds);
         mainWindow.show();
         mainWindow.focus();
       }
@@ -209,7 +239,6 @@ if (!gotTheLock) {
     setupIPC();
     registerShortcut();
     createTray();
-    mainWindow.center();
     mainWindow.show();
   });
 }
